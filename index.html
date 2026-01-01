@@ -21,6 +21,18 @@ button:hover{background:#218838;}
 .actions button{background:#007bff;margin-left:5px;padding:5px 8px;font-size:0.8em;border:none;border-radius:3px;cursor:pointer;color:white;}
 .actions button.delete{background:#dc3545;}
 .actions button:hover{opacity:0.9;}
+#logoutBtn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background:#dc3545;
+  color:white;
+  border:none;
+  padding:10px 15px;
+  border-radius:5px;
+  cursor:pointer;
+}
+#logoutBtn:hover { opacity:0.9; }
 </style>
 </head>
 <body>
@@ -45,6 +57,8 @@ button:hover{background:#218838;}
   <input type="text" id="search" placeholder="Search words...">
 
   <div class="word-list" id="wordList"></div>
+
+  <button id="logoutBtn">Logout</button>
 </div>
 
 <script>
@@ -55,8 +69,9 @@ const mainApp = document.getElementById('mainApp');
 const wordForm = document.getElementById('wordForm');
 const wordList = document.getElementById('wordList');
 const searchInput = document.getElementById('search');
+const logoutBtn = document.getElementById('logoutBtn');
 
-const rudeWords = ["badword1","badword2","badword3"]; // add your own words
+const rudeWords = ["badword1","badword2","badword3"];
 
 let currentUser = localStorage.getItem('currentUser');
 let words = JSON.parse(localStorage.getItem('words')) || [];
@@ -67,6 +82,13 @@ loginForm.addEventListener('submit', e=>{
   e.preventDefault();
   const username = usernameInput.value.trim();
   if(!username) return;
+
+  // Prevent username if already in use
+  if(localStorage.getItem('currentUser')){
+    alert("This username is already logged in. Please logout first.");
+    return;
+  }
+
   currentUser = username;
   localStorage.setItem('currentUser', currentUser);
   showApp();
@@ -111,12 +133,10 @@ wordForm.addEventListener('submit', e=>{
   const description = document.getElementById('description').value.trim();
   if(!word || !description) return;
 
-  // rude words
   if(rudeWords.some(r=> (word+" "+description).toLowerCase().includes(r))){
     alert("Contains inappropriate language!"); return;
   }
 
-  // duplicate
   if(words.some(w=> w.word.toLowerCase()===word.toLowerCase())){
     alert("This word already exists!"); return;
   }
@@ -157,6 +177,17 @@ window.deleteWord=function(index){
     renderWords();
   }
 }
+
+// Logout button
+logoutBtn.addEventListener('click', ()=>{
+  if(confirm("Do you want to logout?")){
+    localStorage.removeItem('currentUser');
+    currentUser=null;
+    mainApp.style.display='none';
+    loginContainer.style.display='block';
+  }
+});
 </script>
+
 </body>
 </html>
